@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"bytes"
 	"crypto/sha1"
 	"encoding/base64"
 	"errors"
@@ -37,16 +36,14 @@ func createNewLink(key string, url string) *Link {
 }
 
 func createLinkKey(url string) (string, error) {
-	byteSum := sha1.Sum([]byte(url))
-	buf := new(bytes.Buffer)
-	for i := 0; i < len(byteSum); i++ {
-		err := buf.WriteByte(byteSum[i])
-		if err != nil {
-			return "", err
-		}
-	}
-	encodedBytes := buf.Bytes()
-	return base64.StdEncoding.EncodeToString(encodedBytes[:MaxKeyLength]), nil
+	sum := CreateHash(url)
+	return base64.StdEncoding.EncodeToString(sum[:MaxKeyLength]), nil
+}
+
+func CreateHash(input string) []byte {
+	hash := sha1.New()
+	hash.Write([]byte(input))
+	return hash.Sum(nil)
 }
 
 func Create(url string) (string, time.Time) {

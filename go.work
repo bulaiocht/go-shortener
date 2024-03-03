@@ -3,4 +3,5 @@ go 1.22
 use (
 	./src/link_server
 	./src/link_storage
+	./src/link_cache
 )
