@@ -21,9 +21,8 @@ type ShortResponse struct {
 	ExpirationDate time.Time `json:"expiration_date"`
 }
 
-func startServer() {
-
-	http.HandleFunc("/{key}", func(writer http.ResponseWriter, request *http.Request) {
+func redirect() func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		switch request.Method {
 		case http.MethodGet:
 			if key := request.PathValue("key"); key != "" {
@@ -43,9 +42,11 @@ func startServer() {
 		default:
 			http.Error(writer, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
-	})
+	}
+}
 
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+func createShortURL() func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		switch request.Method {
 		case http.MethodPost:
 			createRequest := &ShortRequest{}
@@ -75,7 +76,12 @@ func startServer() {
 		default:
 			http.Error(writer, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
-	})
+	}
+}
+
+func startServer() {
+	http.HandleFunc("/{key}", redirect())
+	http.HandleFunc("/", createShortURL())
 	log.Fatal(http.ListenAndServe(servingAddress, nil))
 }
 

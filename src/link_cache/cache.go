@@ -9,7 +9,7 @@ func LookUp(key string) any {
 }
 
 func Put(key string, value any) {
-	if v := cache[key]; v != nil {
+	if v, ok := cache[key]; ok {
 		if v == value {
 			return
 		}
